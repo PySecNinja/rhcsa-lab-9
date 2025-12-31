@@ -108,6 +108,94 @@ podman exec -it server2 bash
 
 > **Note:** Podman/container tasks have been removed from RHEL 10 exam objectives.
 
+### RHEL 10 Exam Tasks
+
+<details>
+<summary>Section 1: Essential Tools (50 pts)</summary>
+
+- **1.1 Basic File Operations** (10 pts): Create `/exam/archives`, copy files from `/etc`, create tar archive
+- **1.2 File Permissions** (10 pts): Create file with specific permissions and ownership
+- **1.3 Text Processing** (10 pts): Extract users with nologin shell, count lines in passwd
+- **1.4 Script Creation** (10 pts): Create sysinfo.sh script showing date, hostname, user
+- **1.5 Documentation** (10 pts): Find manual section for passwd config file
+</details>
+
+<details>
+<summary>Section 2: Software Management (25 pts)</summary>
+
+- **2.1 DNF Repository** (5 pts): Configure and verify examrepo
+- **2.2 RPM Package Management** (5 pts): Install and query httpd package
+- **2.3 Flatpak Repository** (5 pts) ⭐NEW: Verify Flathub remote configuration
+- **2.4 Flatpak Package Management** (10 pts) ⭐NEW: Search, install, list, remove Flatpak apps
+</details>
+
+<details>
+<summary>Section 3: Shell Scripting (20 pts)</summary>
+
+- **3.1 Conditional Script** (10 pts): Create check-service.sh with argument handling
+- **3.2 Loop Script** (10 pts): Create create-users.sh reading from file
+</details>
+
+<details>
+<summary>Section 4: Operate Running Systems (35 pts)</summary>
+
+- **4.1 Boot Targets** (10 pts): Set default to multi-user.target
+- **4.2 Process Management** (5 pts): Identify sshd PID, use ps/top
+- **4.3 System Logs** (10 pts): Configure persistent journald storage
+- **4.4 Systemd Timers** (10 pts) ⭐NEW: Create service/timer units, enable daily backup
+</details>
+
+<details>
+<summary>Section 5: Local Storage (35 pts)</summary>
+
+- **5.1 Loop Device** (5 pts): Verify loop device for LVM
+- **5.2 LVM Configuration** (25 pts): Create PV, VG (examvg), LV (examlv), format xfs, mount
+- **5.3 Swap Space** (5 pts): Create and enable additional swap
+</details>
+
+<details>
+<summary>Section 6: File Systems (30 pts)</summary>
+
+- **6.1 Directory Permissions** (10 pts): Create /shared/projects with SGID
+- **6.2 Access Control Lists** (10 pts): Configure ACLs for alice and bob
+- **6.3 NFS Client** (10 pts): Configure autofs for NFS mounts
+</details>
+
+<details>
+<summary>Section 7: Deploy, Configure, Maintain (30 pts)</summary>
+
+- **7.1 Service Management** (10 pts): Enable and start httpd
+- **7.2 Scheduled Tasks** (10 pts): Create cron job and at job
+- **7.3 Time Configuration** (5 pts): Set timezone, verify chrony
+- **7.4 Tuned Profiles** (5 pts): List and set tuned profile
+</details>
+
+<details>
+<summary>Section 8: Networking (30 pts)</summary>
+
+- **8.1 Network Configuration** (10 pts): Verify connectivity, display connections
+- **8.2 Hostname** (5 pts): Set static hostname on server2
+- **8.3 Hostname Resolution** (5 pts): Add /etc/hosts entry
+- **8.4 Firewall** (10 pts): Allow HTTP/HTTPS, reload rules
+</details>
+
+<details>
+<summary>Section 9: Users and Groups (25 pts)</summary>
+
+- **9.1 User Management** (10 pts): Create admin1 (UID 2001), add to wheel, create developer1
+- **9.2 Group Management** (5 pts): Create developers group (GID 3000)
+- **9.3 Password Policies** (10 pts): Configure password aging, lock contractor1
+</details>
+
+<details>
+<summary>Section 10: Security (30 pts)</summary>
+
+- **10.1 SELinux** (10 pts): Enforce mode, list/restore contexts
+- **10.2 SSH Security** (10 pts): Disable root login, configure key-based auth
+- **10.3 Sudo Configuration** (5 pts): Allow developers to manage httpd
+- **10.4 Firewall Security** (5 pts): Block IP with rich rules
+</details>
+
 ## RHEL 9 EX200 Exam Sections (Legacy)
 
 | Section | Domain | Points |
@@ -123,6 +211,80 @@ podman exec -it server2 bash
 | 9 | Security | 15 |
 
 **Total: 300 points | Passing: 210 (70%)**
+
+### RHEL 9 Exam Tasks
+
+<details>
+<summary>Section 1: Essential Tools (50 pts)</summary>
+
+- **1.1 Basic File Operations** (10 pts): Create `/exam/archives`, copy files from `/etc`, create tar archive
+- **1.2 File Permissions** (10 pts): Create file with specific permissions and ownership
+- **1.3 Text Processing** (10 pts): Extract users with nologin shell, count lines in passwd
+- **1.4 Script Creation** (10 pts): Create sysinfo.sh script showing date, hostname, user
+- **1.5 Documentation** (10 pts): Find manual section for passwd config file
+</details>
+
+<details>
+<summary>Section 2: Shell Scripts (20 pts)</summary>
+
+- **2.1 Conditional Script** (10 pts): Create check-service.sh with argument handling
+- **2.2 Loop Script** (10 pts): Create create-users.sh reading from file
+</details>
+
+<details>
+<summary>Section 3: Operate Running Systems (25 pts)</summary>
+
+- **3.1 Boot Targets** (10 pts): Set default to multi-user.target
+- **3.2 Process Management** (5 pts): Identify sshd PID, use ps/top
+- **3.3 System Logs** (10 pts): Configure persistent journald storage
+</details>
+
+<details>
+<summary>Section 4: Local Storage (30 pts)</summary>
+
+- **4.1 Loop Device** (5 pts): Verify loop device for LVM
+- **4.2 LVM Configuration** (20 pts): Create VG (examvg), LV (examlv), format xfs, mount
+- **4.3 Swap Space** (5 pts): Create and enable additional swap
+</details>
+
+<details>
+<summary>Section 5: File Systems (20 pts)</summary>
+
+- **5.1 Directory Permissions** (10 pts): Create /shared/projects with SGID
+- **5.2 Access Control Lists** (10 pts): Configure ACLs for alice and bob
+</details>
+
+<details>
+<summary>Section 6: Deploy, Configure, Maintain (30 pts)</summary>
+
+- **6.1 Software Management** (10 pts): Configure DNF repo, install httpd
+- **6.2 Service Management** (10 pts): Enable and start httpd
+- **6.3 Scheduled Tasks** (5 pts): Create cron job for sysinfo.sh
+- **6.4 Time Configuration** (5 pts): Set timezone to America/New_York
+</details>
+
+<details>
+<summary>Section 7: Networking (15 pts)</summary>
+
+- **7.1 Hostname** (5 pts): Set static hostname on server2
+- **7.2 Firewall** (10 pts): Allow HTTP/HTTPS services permanently
+</details>
+
+<details>
+<summary>Section 8: Users and Groups (25 pts)</summary>
+
+- **8.1 User Management** (10 pts): Create admin1 (UID 2001), add to wheel, create developer1
+- **8.2 Group Management** (5 pts): Create developers group (GID 3000)
+- **8.3 Password Policies** (10 pts): Configure password aging, lock contractor1
+</details>
+
+<details>
+<summary>Section 9: Security (15 pts)</summary>
+
+- **9.1 SELinux** (5 pts): Ensure enforcing mode
+- **9.2 SSH Security** (5 pts): Disable root login via SSH
+- **9.3 Sudo Configuration** (5 pts): Allow developers to manage httpd
+</details>
 
 ## New RHEL 10 Features
 
