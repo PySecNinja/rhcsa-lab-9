@@ -1,11 +1,11 @@
 # RHCSA EX200 Practice Lab
 
-A containerized practice environment for the Red Hat Certified System Administrator (RHCSA) exam.
+A containerized practice environment for the Red Hat Certified System Administrator (RHCSA) exam. Supports both **RHEL 9** and **RHEL 10** exam objectives with AlmaLinux or Rocky Linux.
 
 ## Prerequisites
 
 - **Podman** (recommended) or Docker
-- Linux host (tested on Fedora, RHEL, Rocky Linux)
+- Linux host (tested on Fedora, RHEL, Rocky Linux, AlmaLinux)
 - ~2GB disk space for the container image
 
 ## Quick Start
@@ -15,11 +15,22 @@ A containerized practice environment for the Red Hat Certified System Administra
 chmod +x *.sh
 
 # 2. Start the lab environment
-./setup-lab.sh start
+./setup-lab.sh start              # RHEL 10 + Rocky Linux (default)
+./setup-lab.sh start --alma       # RHEL 10 + AlmaLinux
+./setup-lab.sh start --rhel9      # RHEL 9 + Rocky Linux
 
 # 3. Launch the interactive menu
 ./exam-menu.sh
 ```
+
+## Version Selection
+
+| Command | RHEL Version | Distribution |
+|---------|--------------|--------------|
+| `./setup-lab.sh start` | 10 (default) | Rocky Linux |
+| `./setup-lab.sh start --alma` | 10 | AlmaLinux |
+| `./setup-lab.sh start --rhel9` | 9 | Rocky Linux |
+| `./setup-lab.sh start --rhel9 --alma` | 9 | AlmaLinux |
 
 ## Lab Components
 
@@ -28,8 +39,10 @@ chmod +x *.sh
 | `setup-lab.sh` | Build image and manage containers |
 | `exam-menu.sh` | Interactive menu for exam practice |
 | `validate-tasks.sh` | Automated task validation |
-| `exam-timer.sh` | 2.5-hour countdown timer |
-| `Containerfile` | Rocky Linux 9 exam image |
+| `exam-timer.sh` | Countdown timer (3h for RHEL 10, 2.5h for RHEL 9) |
+| `containerfiles/` | Version-specific container definitions |
+| `exams/` | Version-specific exam task documents |
+| `validation/` | Version-specific validation scripts |
 
 ## Usage
 
@@ -40,6 +53,7 @@ chmod +x *.sh
 ./setup-lab.sh stop     # Stop and remove containers
 ./setup-lab.sh reset    # Reset to fresh state
 ./setup-lab.sh status   # Check container status
+./setup-lab.sh build    # Build image only
 ```
 
 ### Connecting to Servers
@@ -61,7 +75,7 @@ podman exec -it server2 bash
 
 # Validate specific section
 ./validate-tasks.sh 1          # Essential Tools
-./validate-tasks.sh 2          # Shell Scripts
+./validate-tasks.sh 2          # Software/Scripts
 ./validate-tasks.sh storage    # Local Storage
 ./validate-tasks.sh security   # Security
 ```
@@ -75,9 +89,65 @@ podman exec -it server2 bash
 
 **Root Password:** `redhat`
 
-## Container Limitations
+## RHEL 10 EX200 Exam Sections (New)
 
-This containerized environment has some limitations compared to real VMs:
+| Section | Domain | Points | New in RHEL 10 |
+|---------|--------|--------|----------------|
+| 1 | Essential Tools | 50 | - |
+| 2 | Software Management | 25 | **Flatpak added** |
+| 3 | Shell Scripting | 20 | - |
+| 4 | Running Systems | 35 | **systemd timers** |
+| 5 | Local Storage | 35 | - |
+| 6 | File Systems | 30 | - |
+| 7 | Deploy/Configure | 30 | - |
+| 8 | Networking | 30 | - |
+| 9 | Users/Groups | 25 | - |
+| 10 | Security | 30 | - |
+
+**Total: 310 points | Passing: 217 (70%)**
+
+> **Note:** Podman/container tasks have been removed from RHEL 10 exam objectives.
+
+## RHEL 9 EX200 Exam Sections (Legacy)
+
+| Section | Domain | Points |
+|---------|--------|--------|
+| 1 | Essential Tools | 50 |
+| 2 | Shell Scripts | 20 |
+| 3 | Operating Systems | 25 |
+| 4 | Local Storage | 30 |
+| 5 | File Systems | 20 |
+| 6 | Deploy/Configure | 30 |
+| 7 | Networking | 15 |
+| 8 | Users & Groups | 25 |
+| 9 | Security | 15 |
+
+**Total: 300 points | Passing: 210 (70%)**
+
+## New RHEL 10 Features
+
+### Flatpak Package Management
+
+```bash
+flatpak remote-list                     # List configured remotes
+flatpak remote-add NAME URL             # Add a remote
+flatpak search PACKAGE                  # Search for packages
+flatpak install REMOTE PACKAGE          # Install a package
+flatpak list                            # List installed packages
+flatpak remove PACKAGE                  # Remove a package
+```
+
+### Systemd Timers
+
+```bash
+# Create a service unit (/etc/systemd/system/myservice.service)
+# Create a timer unit (/etc/systemd/system/myservice.timer)
+systemctl enable --now myservice.timer  # Enable and start timer
+systemctl list-timers                   # List active timers
+systemctl status myservice.timer        # Check timer status
+```
+
+## Container Limitations
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -85,6 +155,7 @@ This containerized environment has some limitations compared to real VMs:
 | File Permissions/ACLs | Full | Works normally |
 | Services (systemd) | Full | With --privileged |
 | Firewall | Full | firewalld works |
+| Flatpak | Full | RHEL 10 only |
 | SELinux | Partial | Depends on host |
 | LVM | Partial | Use /dev/loop0 (500MB image) |
 | Boot Targets | View Only | Can set but no real boot |
@@ -104,20 +175,6 @@ vgcreate examvg /dev/loop0
 lvcreate -L 200M -n examlv examvg
 ```
 
-## Exam Sections
-
-1. **Essential Tools** (50 pts) - File operations, permissions, text processing
-2. **Shell Scripts** (20 pts) - Conditionals, loops, arguments
-3. **Operating Systems** (40 pts) - Boot targets, processes, logs
-4. **Local Storage** (40 pts) - Partitions, LVM, swap
-5. **File Systems** (30 pts) - Permissions, ACLs, NFS
-6. **Deploy/Configure** (40 pts) - DNF, services, cron, time
-7. **Networking** (30 pts) - nmcli, hostname, firewall
-8. **Users & Groups** (25 pts) - User management, policies
-9. **Security** (25 pts) - SELinux, SSH, sudo
-
-**Total: 300 points | Passing: 210 (70%)**
-
 ## Tips for Success
 
 1. Read each task completely before starting
@@ -126,6 +183,7 @@ lvcreate -L 200M -n examlv examvg
 4. Use `systemctl` for all service management
 5. Always verify your work with the validation script
 6. Practice with the timer to simulate real exam pressure
+7. For RHEL 10: Practice Flatpak commands and systemd timers
 
 ## Troubleshooting
 
@@ -152,13 +210,29 @@ getenforce
 # Container SELinux may be limited if host is permissive
 ```
 
+**Wrong RHEL version running:**
+```bash
+# Stop current lab
+./setup-lab.sh stop
+
+# Start with desired version
+./setup-lab.sh start --rhel9      # For RHEL 9
+./setup-lab.sh start              # For RHEL 10 (default)
+```
+
 ## Full VM Alternative
 
 For complete exam simulation (boot targets, real LVM, full SELinux), consider:
 
-1. **Vagrant + libvirt/VirtualBox** with Rocky Linux 9 boxes
+1. **Vagrant + libvirt/VirtualBox** with Rocky/AlmaLinux 10 boxes
 2. **RHEL Developer Subscription** (free) for real RHEL VMs
-3. **Cloud instances** (AWS, GCP, Azure) with RHEL/Rocky
+3. **Cloud instances** (AWS, GCP, Azure) with RHEL/Rocky/AlmaLinux
+
+## Sources
+
+- [Red Hat EX200 Exam Objectives](https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam)
+- [AlmaLinux Docker Hub](https://hub.docker.com/_/almalinux)
+- [Rocky Linux Docker Hub](https://hub.docker.com/r/rockylinux/rockylinux)
 
 ## License
 

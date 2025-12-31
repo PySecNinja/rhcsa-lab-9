@@ -20,11 +20,27 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Detect RHEL version from running container
+detect_version() {
+    if $RUNTIME ps --format "{{.Names}}" | grep -q "^server1$"; then
+        VERSION=$($RUNTIME exec server1 printenv RHEL_VERSION 2>/dev/null || echo "")
+        if [[ -z "$VERSION" ]]; then
+            VERSION=$($RUNTIME exec server1 bash -c "grep -oP '(?<=VERSION_ID=\")[0-9]+' /etc/os-release" 2>/dev/null || echo "10")
+        fi
+        echo "$VERSION"
+    else
+        echo "10"
+    fi
+}
+
+RHEL_VERSION=$(detect_version)
+
 show_main_menu() {
     clear
     echo -e "${BLUE}"
     echo "╔════════════════════════════════════════════════════════════╗"
     echo "║          RHCSA EX200 Practice Exam Environment             ║"
+    echo "║                    RHEL ${RHEL_VERSION} Edition                         ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo ""
@@ -33,7 +49,11 @@ show_main_menu() {
     echo "  1) View Exam Tasks"
     echo "  2) Connect to server1"
     echo "  3) Connect to server2"
-    echo "  4) Start Exam Timer (2.5 hours)"
+    if [[ "$RHEL_VERSION" == "10" ]]; then
+        echo "  4) Start Exam Timer (3 hours)"
+    else
+        echo "  4) Start Exam Timer (2.5 hours)"
+    fi
     echo "  5) Validate All Tasks"
     echo "  6) Validate Specific Section"
     echo "  7) Reset Lab Environment"
@@ -46,13 +66,19 @@ show_main_menu() {
 
 view_exam_tasks() {
     clear
+    EXAM_FILE="$SCRIPT_DIR/exams/rhel${RHEL_VERSION}-ex200-sample-exam.md"
+
+    if [[ ! -f "$EXAM_FILE" ]]; then
+        echo -e "${RED}Exam file not found: $EXAM_FILE${NC}"
+        echo -e "${YELLOW}Press Enter to return to menu...${NC}"
+        read
+        return
+    fi
+
     if command -v less &> /dev/null; then
-        less "$SCRIPT_DIR/../rhel10-ex200-sample-exam.md" 2>/dev/null || \
-        cat "$SCRIPT_DIR/../rhel10-ex200-sample-exam.md" 2>/dev/null || \
-        echo "Exam file not found. Check rhel10-ex200-sample-exam.md"
+        less "$EXAM_FILE"
     else
-        cat "$SCRIPT_DIR/../rhel10-ex200-sample-exam.md" 2>/dev/null || \
-        echo "Exam file not found."
+        cat "$EXAM_FILE"
     fi
     echo ""
     echo -e "${YELLOW}Press Enter to return to menu...${NC}"
@@ -76,17 +102,29 @@ connect_server() {
 
 validate_section_menu() {
     clear
-    echo -e "${CYAN}Select Section to Validate:${NC}"
+    echo -e "${CYAN}Select Section to Validate (RHEL ${RHEL_VERSION}):${NC}"
     echo ""
     echo "  1) Section 1: Essential Tools"
-    echo "  2) Section 2: Shell Scripts"
-    echo "  3) Section 3: Operate Running Systems"
-    echo "  4) Section 4: Local Storage"
-    echo "  5) Section 5: File Systems"
-    echo "  6) Section 6: Deploy, Configure, Maintain"
-    echo "  7) Section 7: Networking"
-    echo "  8) Section 8: Users and Groups"
-    echo "  9) Section 9: Security"
+    if [[ "$RHEL_VERSION" == "10" ]]; then
+        echo "  2) Section 2: Software Management (RPM/DNF/Flatpak)"
+        echo "  3) Section 3: Shell Scripting"
+        echo "  4) Section 4: Operate Running Systems (+ Timers)"
+        echo "  5) Section 5: Local Storage"
+        echo "  6) Section 6: File Systems"
+        echo "  7) Section 7: Deploy, Configure, Maintain"
+        echo "  8) Section 8: Networking"
+        echo "  9) Section 9: Users and Groups"
+        echo " 10) Section 10: Security"
+    else
+        echo "  2) Section 2: Shell Scripts"
+        echo "  3) Section 3: Operate Running Systems"
+        echo "  4) Section 4: Local Storage"
+        echo "  5) Section 5: File Systems"
+        echo "  6) Section 6: Deploy, Configure, Maintain"
+        echo "  7) Section 7: Networking"
+        echo "  8) Section 8: Users and Groups"
+        echo "  9) Section 9: Security"
+    fi
     echo "  0) Back to Main Menu"
     echo ""
     echo -n "Select section: "
@@ -102,6 +140,13 @@ validate_section_menu() {
         7) "$SCRIPT_DIR/validate-tasks.sh" 7 ;;
         8) "$SCRIPT_DIR/validate-tasks.sh" 8 ;;
         9) "$SCRIPT_DIR/validate-tasks.sh" 9 ;;
+        10)
+            if [[ "$RHEL_VERSION" == "10" ]]; then
+                "$SCRIPT_DIR/validate-tasks.sh" 10
+            else
+                echo "Section 10 is only available in RHEL 10 mode"
+            fi
+            ;;
         0) return ;;
         *) echo "Invalid option" ;;
     esac
@@ -112,7 +157,7 @@ validate_section_menu() {
 
 show_hints() {
     clear
-    echo -e "${CYAN}RHCSA Exam Hints & Quick Reference${NC}"
+    echo -e "${CYAN}RHCSA Exam Hints & Quick Reference (RHEL ${RHEL_VERSION})${NC}"
     echo ""
     echo -e "${YELLOW}Essential Commands:${NC}"
     echo "  man -k <keyword>         # Search man pages"
@@ -139,6 +184,24 @@ show_hints() {
     echo "  systemctl list-unit-files"
     echo "  journalctl -u service -f"
     echo ""
+
+    if [[ "$RHEL_VERSION" == "10" ]]; then
+        echo -e "${YELLOW}Flatpak (RHEL 10):${NC}"
+        echo "  flatpak remote-list              # List remotes"
+        echo "  flatpak remote-add NAME URL      # Add remote"
+        echo "  flatpak search NAME              # Search packages"
+        echo "  flatpak install REMOTE PACKAGE   # Install package"
+        echo "  flatpak list                     # List installed"
+        echo "  flatpak remove PACKAGE           # Remove package"
+        echo ""
+        echo -e "${YELLOW}Systemd Timers (RHEL 10):${NC}"
+        echo "  systemctl list-timers            # List active timers"
+        echo "  systemctl enable --now NAME.timer"
+        echo "  systemctl status NAME.timer"
+        echo "  # Timer unit requires matching .service unit"
+        echo ""
+    fi
+
     echo -e "${YELLOW}SELinux:${NC}"
     echo "  getenforce / setenforce"
     echo "  semanage port -a -t http_port_t -p tcp 8888"
@@ -182,6 +245,8 @@ reset_lab() {
     read confirm
     if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
         "$SCRIPT_DIR/setup-lab.sh" reset
+        # Re-detect version after reset
+        RHEL_VERSION=$(detect_version)
     fi
     echo ""
     echo -e "${YELLOW}Press Enter to continue...${NC}"
@@ -190,6 +255,14 @@ reset_lab() {
 
 # Main loop
 while true; do
+    # Re-detect version in case containers were restarted
+    if $RUNTIME ps --format "{{.Names}}" | grep -q "^server1$"; then
+        NEW_VERSION=$(detect_version)
+        if [[ "$NEW_VERSION" != "$RHEL_VERSION" ]]; then
+            RHEL_VERSION="$NEW_VERSION"
+        fi
+    fi
+
     show_main_menu
     read choice
 
